@@ -9,15 +9,57 @@ h1 {
     margin-bottom: 20px;
   }
   
-  #score, #moves {
+  #score,
+  #moves {
     text-align: center;
     font-size: 18px;
     margin-bottom: 10px;
   }
   
-  #gameCanvas {
-    display: block;
+  #gameBoard {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    justify-items: center;
+    width: 700px;
     margin: 0 auto;
-    background-color: #f0f0f0;
+    border: 2px solid #000;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  .gem {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 1px solid #000;
+    box-sizing: border-box;
+  }
+  
+  .red {
+    background-color: #D3151C;
+  }
+  
+  .blue {
+    background-color: #a88af5;
+  }
+  
+  .yellow {
+    background-color: #F5D346;
+  }
+  
+  .green {
+    background-color: #32a852;
+  }
+
+  .gem:nth-child(10n) {
+    border-right: none;
+  }
+  
+  .gem:nth-last-child(-n+10) {
+    border-bottom: none;
+  }
+
+  .gem:not(:nth-child(10n)) {
+    border-right: none;
   }
   
