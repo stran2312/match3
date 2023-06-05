@@ -1,0 +1,23 @@
+h1 {
+    text-align: center;
+  }
+  
+  #gameOverMsg {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  #score, #moves {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  #gameCanvas {
+    display: block;
+    margin: 0 auto;
+    background-color: #f0f0f0;
+  }
+  

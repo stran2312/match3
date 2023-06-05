@@ -1,12 +1,13 @@
-// Game board dimensions
+// Game configuration
 const numRows = 8;
 const numCols = 8;
+const gemColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+const gemSize = 60;
+const gemMargin = 5;
+const canvasSize = numRows * (gemSize + gemMargin) + gemMargin;
 
 // Game board
 let board = [];
-
-// Possible gem colors
-const gemColors = ['red', 'green', 'blue', 'yellow'];
 
 // Initialize the game board
 function initializeBoard() {
@@ -35,46 +36,67 @@ function swapGems(row1, col1, row2, col2) {
 function checkMatches() {
   const matches = [];
 
-  // Check horizontally
+  // Check for horizontal matches
   for (let row = 0; row < numRows; row++) {
-    let colorStreak = 1;
-    for (let col = 0; col < numCols; col++) {
-      const currentGem = board[row][col];
-      const nextGem = board[row][col + 1];
-
-      if (currentGem === nextGem) {
-        colorStreak++;
+    let col = 0;
+    while (col < numCols - 2) {
+      if (board[row][col] === board[row][col + 1] && board[row][col] === board[row][col + 2]) {
+        matches.push({
+          row,
+          col,
+          length: 3,
+          direction: 'horizontal'
+        });
+        col += 3;
       } else {
-        if (colorStreak >= 3) {
-          matches.push({ row, col: col - colorStreak + 1, length: colorStreak, direction: 'horizontal' });
-        }
-        colorStreak = 1;
+        col++;
       }
     }
   }
 
-  // Check vertically
+  // Check for vertical matches
   for (let col = 0; col < numCols; col++) {
-    let colorStreak = 1;
-    for (let row = 0; row < numRows; row++) {
-      const currentGem = board[row][col];
-      const nextGem = board[row + 1][col];
-
-      if (currentGem === nextGem) {
-        colorStreak++;
+    let row = 0;
+    while (row < numRows - 2) {
+      if (board[row][col] === board[row + 1][col] && board[row][col] === board[row + 2][col]) {
+        matches.push({
+          row,
+          col,
+          length: 3,
+          direction: 'vertical'
+        });
+        row += 3;
       } else {
-        if (colorStreak >= 3) {
-          matches.push({ row: row - colorStreak + 1, col, length: colorStreak, direction: 'vertical' });
-        }
-        colorStreak = 1;
+        row++;
       }
     }
   }
 
   return matches;
 }
-
+// Draw the game board on the canvas
+function drawBoard() {
+  const canvas = document.getElementById('gameCanvas');
+  const context = canvas.getContext('2d');
+  
+  // Clear the canvas
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw each gem on the board
+  for (let row = 0; row < numRows; row++) {
+    for (let col = 0; col < numCols; col++) {
+      const gemX = col * (gemSize + gemMargin) + gemMargin;
+      const gemY = row * (gemSize + gemMargin) + gemMargin;
+      const gemColor = board[row][col];
+      
+      // Draw the gem as a colored rectangle
+      context.fillStyle = gemColor;
+      context.fillRect(gemX, gemY, gemSize, gemSize);
+    }
+  }
+}
 // Remove matched gems from the board
+
 function removeMatches(matches) {
   for (const match of matches) {
     const { row, col, length, direction } = match;
@@ -108,47 +130,88 @@ function shiftGems() {
   }
 }
 
+// Fill
 // Fill empty spaces with new gems
 function fillGems() {
   for (let col = 0; col < numCols; col++) {
-    for (let row = numRows - 1; row >= 0; row--) {
-      if (board[row][col] === null) {
-        board[row][col] = getRandomGem();
-      }
-    }
+  let emptySpaces = 0;
+  for (let row = numRows - 1; row >= 0; row--) {
+  if (board[row][col] === null) {
+  board[row][col] = getRandomGem();
+  emptySpaces++;
   }
-}
-
-// Print the game board
-function printBoard() {
-  for (let row = 0; row < numRows; row++) {
-    let rowString = '';
-    for (let col = 0; col < numCols; col++) {
-      rowString += board[row][col] + ' ';
-    }
-    console.log(rowString);
   }
-}
-
-// Play the game
-function playGame() {
-  initializeBoard();
-  printBoard();
+  }
+  }
+  
+  // Game over condition
+  const maxMoves = 30;
+  let movesRemaining = maxMoves;
+  
+  // Calculate and update the score
+  let score = 0;
+  
+  // Update the game state after each move
+  function updateGame() {
+  drawBoard();
   const matches = checkMatches();
-  console.log('Matches:', matches);
-
+  
+  if (matches.length > 0) {
   removeMatches(matches);
-  console.log('Board after removing matches:');
-  printBoard();
-
   shiftGems();
-  console.log('Board after shifting gems:');
-  printBoard();
-
   fillGems();
-  console.log('Board after filling gems:');
-  printBoard();
-}
-
-// Start the game
-playGame();
+  setTimeout(updateGame, 500); // Delay to visualize the movement
+  }
+  }
+  
+  // Update the score
+  function updateScore(matchLength) {
+  const matchScore = matchLength * 10;
+  score += matchScore;
+  
+  const scoreDisplay = document.getElementById('score');
+  scoreDisplay.textContent = `Score: ${score}`;
+  }
+  
+  // Update the moves remaining
+  function updateMoves() {
+  const movesDisplay = document.getElementById('moves');
+  movesDisplay.textContent = `Moves: ${movesRemaining}`;
+  
+  if (movesRemaining === 0) {
+  gameOver();
+  }
+  }
+  
+  // Game over function
+  function gameOver() {
+  const gameOverMsg = document.getElementById('gameOverMsg');
+  gameOverMsg.textContent = 'Game Over';
+  
+  canvas.removeEventListener('click', handleGemClick);
+  }
+  
+  // Swap gems when clicked
+  function handleGemClick(event) {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+  
+  const col = Math.floor(mouseX / (gemSize + gemMargin));
+  const row = Math.floor(mouseY / (gemSize + gemMargin));
+  
+  if (row >= 0 && row < numRows && col >= 0 && col < numCols) {
+  if (col < numCols - 1) {
+  swapGems(row, col, row, col + 1);
+  updateGame();
+  movesRemaining--;
+  updateMoves();
+  }
+  }
+  }
+  
+  // Start the game
+  initializeBoard();
+  drawBoard();
+  canvas.addEventListener('click', handleGemClick);
+  updateMoves();

@@ -2,6 +2,36 @@
 <html>
 <head>
   <title>Match 3 Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    #gameCanvas {
+      margin: 20px auto;
+      border: 1px solid #000;
+      background-color: #EEE;
+    }
+
+    .gem {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin: 5px;
+      display: inline-block;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .gem:hover {
+      transform: scale(1.1);
+    }
+  </style>
 </head>
 <body>
   <h1>Match 3 Game</h1>
@@ -9,11 +39,62 @@
 
   <script src="match3.js"></script>
   <script>
-    // Optionally, you can add your own additional JavaScript code here
-    // to handle user interactions or customize the game further.
-    
+    // Game configuration
+    const gemSize = 60;
+    const gemMargin = 5;
+    const canvasSize = numRows * (gemSize + gemMargin) + gemMargin;
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
+
+    // Draw the game board
+    function drawBoard() {
+      ctx.clearRect(0, 0, canvasSize, canvasSize);
+
+      for (let row = 0; row < numRows; row++) {
+        for (let col = 0; col < numCols; col++) {
+          const gemColor = board[row][col];
+          const x = col * (gemSize + gemMargin) + gemMargin;
+          const y = row * (gemSize + gemMargin) + gemMargin;
+
+          if (gemColor) {
+            ctx.fillStyle = gemColor;
+            ctx.beginPath();
+            ctx.arc(x + gemSize / 2, y + gemSize / 2, gemSize / 2, 0, 2 * Math.PI);
+            ctx.fill();
+          }
+        }
+      }
+    }
+
+    // Swap gems when clicked
+    canvas.addEventListener('click', function(event) {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      const col = Math.floor(mouseX / (gemSize + gemMargin));
+      const row = Math.floor(mouseY / (gemSize + gemMargin));
+
+      if (row >= 0 && row < numRows && col >= 0 && col < numCols) {
+        // Swap with the gem to the right
+        if (col < numCols - 1) {
+          swapGems(row, col, row, col + 1);
+          drawBoard();
+          const matches = checkMatches();
+          removeMatches(matches);
+          shiftGems();
+          fillGems();
+          drawBoard();
+        }
+      }
+    });
+
     // Start the game
-    playGame();
+    initializeBoard();
+    drawBoard();
   </script>
 </body>
 </html>
