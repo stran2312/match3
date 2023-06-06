@@ -19,6 +19,7 @@ h1 {
   #gameBoard {
     display: grid;
     grid-template-columns: repeat(10, 1fr);
+    grid-gap: 4px;
     justify-items: center;
     width: 700px;
     margin: 0 auto;
@@ -33,6 +34,7 @@ h1 {
     border-radius: 50%;
     border: 1px solid #000;
     box-sizing: border-box;
+    transition: 0.3s;
   }
   
   .red {
