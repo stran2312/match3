@@ -1,4 +1,4 @@
-Sure! The logic behind a Match 3 game involves the following steps:
+The logic behind a Match 3 game involves the following steps:
 
 1. **Game Initialization**: Set up the game board by creating a two-dimensional array representing the grid of gems. Fill each cell of the array with a randomly selected gem color.
 
